@@ -5,6 +5,17 @@
 ![Status](https://img.shields.io/badge/Status-Research%20Prototype-blue)
 ![Python](https://img.shields.io/badge/Python-3.9%2B-green)
 ![PyTorch](https://img.shields.io/badge/PyTorch-2.0-red)
+![Research Pipeline](https://github.com/Lwg78/genomic-decoder-fly/actions/workflows/run_research_pipeline.yml/badge.svg)
+
+## ☁️ Automated Research Pipeline
+This repository includes a CI/CD pipeline that proves the reproducibility of the experiment.
+Every commit automatically:
+1.  **Installs** the specific PyTorch/NumPy environment.
+2.  **Downloads** the Drosophila genome from UCSC.
+3.  **Trains** the Transformer model on a subset of data.
+4.  **Publishes** the trained model weights as an artifact.
+
+[View the Pipeline Logs](https://github.com/Lwg78/genomic-decoder-fly/actions)
 
 ## 🔬 Executive Summary
 This project treats the cell not as a biological entity, but as a **Computational Operating System**. 
