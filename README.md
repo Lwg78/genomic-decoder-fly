@@ -83,4 +83,4 @@ genomic-decoder-fly/
 
 ---
 **Author:** Lim Wen Gio  
-*Research Prototype for AIAP Portfolio.*
+*Research Prototype for AI Portfolio.*
