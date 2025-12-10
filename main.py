@@ -1,45 +1,74 @@
 import os
 import time
-import numpy as np
+import torch
+from torch.utils.data import DataLoader
 from src.tokenizer import DNATokenizer
+from src.dataloader import GenomicDataLoader
+from src.dataset import GenomicDataset
+from src.model import GenomicTransformer
 
 # Configuration
 K_MER_SIZE = 3
-EXAMPLE_GENE = "ATGCGTACGTAGCTAGCTAGCTAGCTNNNATG" # Fake gene for testing
+CONTEXT_WINDOW = 128   
+BATCH_SIZE = 32        
+TARGET_CHROMOSOME = "chr2L" 
+MODEL_PATH = "genomic_model.pth"
 
 def main():
     print("🧬 GENOMIC DECODER AI (FlyOS V1.0)")
     print("====================================")
     
-    # 1. Initialize the Tokenizer
-    print(f"[1] Initializing DNA K-Mer Tokenizer (K={K_MER_SIZE})...")
+    # 1. Initialize Components
     tokenizer = DNATokenizer(k=K_MER_SIZE)
-    print(f"    -> Vocabulary Size: {len(tokenizer.vocab)} unique DNA words")
+    loader = GenomicDataLoader(data_dir="data/raw")
 
-    # 2. Simulate Loading Data
-    # (In the future, this calls dataloader.py to read dm6.fa)
-    print(f"[2] Loading Genomic Sequence (Simulation)...")
-    print(f"    -> Input Sequence: {EXAMPLE_GENE[:15]}...")
+    # 2. Load Real Data (Lazy)
+    print("\n[Phase 1] Data Ingestion")
+    genome = loader.load_genome(gz_filename="dm6.fa.gz")
     
-    # 3. Encoding (The "Reading" Process)
-    print("[3] AI is reading the DNA...")
-    time.sleep(1) # Dramatic pause for demo
-    encoded_vector = tokenizer.encode(EXAMPLE_GENE)
-    print(f"    -> Encoded Tensor: {encoded_vector[:10]}... (Length: {len(encoded_vector)})")
+    dna_sequence = ""
+    if genome and TARGET_CHROMOSOME in genome:
+        print(f"    -> Accessing {TARGET_CHROMOSOME}...")
+        dna_sequence = str(genome[TARGET_CHROMOSOME].seq).upper()
+    else:
+        print("⚠️ Using Synthetic DNA for demo.")
+        dna_sequence = "ATGCGTACGTAGCTAGCTAGCTAGCTNNNATG" * 10000
 
-    # 4. Decoding Logic (The Research Goal)
-    # Your paper says: "Predict cellular behavior"
-    # Here we simulate a "Gene Expression Prediction"
-    print("[4] Decoding Regulatory Logic...")
-    time.sleep(1)
+    # 3. Build Dataset
+    print("\n[Phase 2] Building Deep Learning Pipeline")
+    dataset = GenomicDataset(dna_sequence, tokenizer, max_len=CONTEXT_WINDOW)
+    train_loader = DataLoader(dataset, batch_size=BATCH_SIZE, shuffle=True)
     
-    # Mock Prediction: GC-Rich regions often indicate high expression
-    gc_content = (EXAMPLE_GENE.count('G') + EXAMPLE_GENE.count('C')) / len(EXAMPLE_GENE)
-    predicted_expression = gc_content * 100 + np.random.normal(0, 5)
+    # 4. Initialize Model
+    print("\n[Phase 3] Initializing Transformer Architecture")
+    model = GenomicTransformer(vocab_size=len(tokenizer.vocab))
+    print(f"    -> Model Parameters: {sum(p.numel() for p in model.parameters()):,}")
     
-    print(f"✅ DECODING COMPLETE")
-    print(f"    -> Predicted Gene Expression Level: {predicted_expression:.2f} TPM")
-    print(f"    -> Regulatory Context: {'Active Promoter' if gc_content > 0.5 else 'Silenced Region'}")
+    # 5. Training Simulation
+    print("\n[Phase 4] Starting Training Loop (First 3 Batches)")
+    
+    device = torch.device("cpu") # Use "mps" if on M1/M2 Mac, "cpu" for Intel Mac
+    model.to(device)
+    model.train() 
+    
+    start_time = time.time()
+    
+    for i, batch in enumerate(train_loader):
+        if i >= 3: break 
+        
+        batch = batch.to(device)
+        prediction = model(batch)
+        
+        print(f"\n    🚀 Batch {i+1}:")
+        print(f"       Input: {batch.shape} | Output: {prediction.shape}")
+        print(f"       Sample Prediction: {prediction[0].item():.4f} (Expression Level)")
+        
+    print(f"\n✅ Speed Check: {BATCH_SIZE * 3} samples processed in {time.time() - start_time:.4f}s")
+    
+    # 6. Save State
+    torch.save(model.state_dict(), MODEL_PATH)
+    print(f"\n💾 Model Artifact saved to: {MODEL_PATH}")
+    print("    -> Ready for Inference.")
 
 if __name__ == "__main__":
     main()
