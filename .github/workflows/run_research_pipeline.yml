@@ -1,0 +1,49 @@
+name: Genomic Research Pipeline
+
+# Trigger on push or manual click
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  build-and-simulate:
+    runs-on: ubuntu-latest
+
+    steps:
+    # 1. Checkout Code
+    - uses: actions/checkout@v3
+
+    # 2. Set up Python (Using 3.9 for stability)
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.9"
+
+    # 3. Install AI Dependencies
+    # Note: We explicitly pin numpy<2.0.0 to avoid the error we saw earlier
+    - name: Install Dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install torch biopython anndata "numpy<2.0.0"
+
+    # 4. Data Engineering (The "Lazy Load" Test)
+    # This proves your script works in a fresh environment
+    - name: Download Genomic Data (dm6)
+      run: |
+        chmod +x scripts/download_data.sh
+        bash scripts/download_data.sh
+
+    # 5. Run the Training Simulation
+    # This generates the model artifact
+    - name: Run Model Simulation
+      run: python main.py
+
+    # 6. Archive the Trained Model
+    # Allows you to download the 'brain' (.pth file) that was trained in the cloud
+    - name: Upload Model Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: trained-genomic-model
+        path: genomic_model.pth
+        retention-days: 5
