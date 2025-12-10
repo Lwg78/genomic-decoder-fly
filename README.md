@@ -8,7 +8,7 @@
 ![Research Pipeline](https://github.com/Lwg78/genomic-decoder-fly/actions/workflows/run_research_pipeline.yml/badge.svg)
 
 ## ☁️ Automated Research Pipeline
-This repository includes a CI/CD pipeline that proves the reproducibility of the experiment.
+This repository includes a CI/CD pipeline that ensures the reproducibility of the experiment.
 Every commit automatically:
 1.  **Installs** the specific PyTorch/NumPy environment.
 2.  **Downloads** the Drosophila genome from UCSC.
@@ -40,8 +40,10 @@ genomic-decoder-fly/
 │   └── model.py          # 🧠 Transformer Encoder (1.2M Params)
 ├── scripts/
 │   └── download_data.sh  # 📜 Auto-fetch UCSC Genomes
+├── .github/workflows/    # 🤖 CI/CD Research Pipeline
 ├── main.py               # 🚀 Training Loop Simulation
 └── README.md             # 📄 Documentation
+└── requirements.txt      # Dependencies
 ```
 
 ## 🚀 Key Technical Features
@@ -77,10 +79,15 @@ genomic-decoder-fly/
     python main.py
     ```
 
+## 💻 Developer Guide: For AI & Data Engineers
+This codebase is designed to be modular.
+* **Data Ingestion:** Located in `src/dataloader.py`. To swap the organism (e.g., Human `hg38`), update the download script and point the loader to the new FASTA file.
+* **Model Config:** Hyperparameters (Layers, Heads, Embedding Dim) can be adjusted in `main.py`.
+
 ## 🔮 Future Roadmap
 * **Phase 2:** Integrate `fly_cell_atlas.h5ad` labels to train the model on real Gene Expression data.
 * **Phase 3:** Implement "In-Silico Mutagenesis" to predict how mutations affect gene regulation.
 
 ---
 **Author:** Lim Wen Gio  
-*Research Prototype for AI Portfolio.*
+*Open Source Research Prototype.*
