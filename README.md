@@ -66,7 +66,7 @@ genomic-decoder-fly/
 
 1.  **Install Dependencies:**
     ```bash
-    pip install torch biopython anndata numpy<2.0.0
+    pip install -r requirements.txt
     ```
 
 2.  **Download Data:**
