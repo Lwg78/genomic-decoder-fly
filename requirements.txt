@@ -1,6 +1,4 @@
-numpy<2.0.0
-itertools
-biopython 
-anndata 
-h5py
 torch
+biopython
+anndata
+numpy<2.0.0
